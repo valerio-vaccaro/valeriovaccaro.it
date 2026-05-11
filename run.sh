@@ -20,4 +20,4 @@ export FLASK_APP="run.py"
 export FLASK_ENV="${FLASK_ENV:-development}"
 export FLASK_DEBUG="${FLASK_DEBUG:-1}"
 
-exec flask run --host "${FLASK_HOST:-127.0.0.1}" --port "${FLASK_PORT:-5000}"
+exec python -m flask run --host "${FLASK_HOST:-127.0.0.1}" --port "${FLASK_PORT:-5252}"

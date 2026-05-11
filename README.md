@@ -21,9 +21,9 @@ cp .env.example .env
 
 ```bash
 export FLASK_APP=run.py
-flask db init
-flask db migrate -m "initial"
-flask db upgrade
+python -m flask db init
+python -m flask db migrate -m "initial"
+python -m flask db upgrade
 ```
 
 ## Run
