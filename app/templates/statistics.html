@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% block title %}Statistics{% endblock %}
+{% block content %}
+<section class="hero-card mb-4">
+  <p class="muted-label mb-2">Analytics</p>
+  <h1 class="display-6 mb-0">Statistics</h1>
+</section>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3"><section class="content-card"><p class="muted-label mb-1">Total events</p><h2 class="h4 mb-0">{{ total_events }}</h2></section></div>
+  <div class="col-6 col-lg-3"><section class="content-card"><p class="muted-label mb-1">Article clicks</p><h2 class="h4 mb-0">{{ total_article_clicks }}</h2></section></div>
+  <div class="col-6 col-lg-3"><section class="content-card"><p class="muted-label mb-1">Project clicks</p><h2 class="h4 mb-0">{{ total_project_clicks }}</h2></section></div>
+  <div class="col-6 col-lg-3"><section class="content-card"><p class="muted-label mb-1">Unique IPs</p><h2 class="h4 mb-0">{{ unique_ips }}</h2></section></div>
+</div>
+
+<div class="row g-3">
+  <div class="col-12 col-xl-6">
+    <section class="content-card h-100">
+      <h2 class="h5 mb-3">Top Articles</h2>
+      <ul class="list-group list-group-flush">
+        {% for item in top_articles %}
+          <li class="list-group-item px-0 d-flex justify-content-between"><span>{{ item[0] }}</span><strong>{{ item[1] }}</strong></li>
+        {% else %}
+          <li class="list-group-item px-0">No data yet.</li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+  <div class="col-12 col-xl-6">
+    <section class="content-card h-100">
+      <h2 class="h5 mb-3">Top Projects</h2>
+      <ul class="list-group list-group-flush">
+        {% for item in top_projects %}
+          <li class="list-group-item px-0 d-flex justify-content-between"><span>{{ item[0] }}</span><strong>{{ item[1] }}</strong></li>
+        {% else %}
+          <li class="list-group-item px-0">No data yet.</li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+  <div class="col-12 col-xl-6">
+    <section class="content-card h-100">
+      <h2 class="h5 mb-3">Most Read Languages</h2>
+      <ul class="list-group list-group-flush">
+        {% for language_code, views in top_languages %}
+          <li class="list-group-item px-0 d-flex justify-content-between">
+            <span>{{ language_flag(language_code) }} {{ (language_code or 'unknown')|upper }}</span>
+            <strong>{{ views }}</strong>
+          </li>
+        {% else %}
+          <li class="list-group-item px-0">No data yet.</li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+
+  <div class="col-12 col-xl-6">
+    <section class="content-card h-100">
+      <h2 class="h5 mb-3">Top IPs</h2>
+      <ul class="list-group list-group-flush">
+        {% for ip, events in ip_stats %}
+          <li class="list-group-item px-0 d-flex justify-content-between"><span>{{ ip or 'unknown' }}</span><strong>{{ events }}</strong></li>
+        {% else %}
+          <li class="list-group-item px-0">No data yet.</li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+
+  <div class="col-12 col-xl-6">
+    <section class="content-card h-100">
+      <h2 class="h5 mb-3">Clicks by Tag</h2>
+      <ul class="list-group list-group-flush">
+        {% for tag, count in tag_stats %}
+          <li class="list-group-item px-0 d-flex justify-content-between"><span class="tag-pill {{ tag_color_class(tag) }}">#{{ tag }}</span><strong>{{ count }}</strong></li>
+        {% else %}
+          <li class="list-group-item px-0">No data yet.</li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+
+  <div class="col-12">
+    <section class="content-card">
+      <h2 class="h5 mb-3">Daily Activity (last 30 days with data)</h2>
+      <div class="stats-chart-wrap mb-3">
+        <canvas id="dailyActivityChart"></canvas>
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for day, events in daily_stats %}
+          <li class="list-group-item px-0 d-flex justify-content-between"><span>{{ day }}</span><strong>{{ events }}</strong></li>
+        {% else %}
+          <li class="list-group-item px-0">No data yet.</li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+
+  <div class="col-12 col-xl-6">
+    <section class="content-card h-100">
+      <h2 class="h5 mb-3">Per Article Stats</h2>
+      <div class="stats-chart-wrap mb-3">
+        <canvas id="articleStatsChart"></canvas>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle stats-table">
+          <thead>
+            <tr><th>Article</th><th>Views</th><th>Unique IPs</th><th>Last click</th></tr>
+          </thead>
+          <tbody>
+            {% for item in per_article_stats %}
+              <tr>
+                <td>{{ item.title }}</td>
+                <td>{{ item.views }}</td>
+                <td>{{ item.unique_ips }}</td>
+                <td>{{ item.last_click_at.strftime('%Y-%m-%d %H:%M') if item.last_click_at else '-' }}</td>
+              </tr>
+            {% else %}
+              <tr><td colspan="4">No articles found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div class="col-12 col-xl-6">
+    <section class="content-card h-100">
+      <h2 class="h5 mb-3">Per Project Stats</h2>
+      <div class="stats-chart-wrap mb-3">
+        <canvas id="projectStatsChart"></canvas>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle stats-table">
+          <thead>
+            <tr><th>Project</th><th>Views</th><th>Unique IPs</th><th>Last click</th></tr>
+          </thead>
+          <tbody>
+            {% for item in per_project_stats %}
+              <tr>
+                <td>{{ item.title }}</td>
+                <td>{{ item.views }}</td>
+                <td>{{ item.unique_ips }}</td>
+                <td>{{ item.last_click_at.strftime('%Y-%m-%d %H:%M') if item.last_click_at else '-' }}</td>
+              </tr>
+            {% else %}
+              <tr><td colspan="4">No projects found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+  {{ super() }}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script>
+    (function () {
+      function themePalette() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        return {
+          text: isDark ? '#e2e8f0' : '#1a1f2b',
+          grid: isDark ? 'rgba(148, 163, 184, 0.25)' : 'rgba(11, 114, 133, 0.18)',
+          line: isDark ? '#3db8cd' : '#0b7285',
+          barsA: isDark ? 'rgba(61, 184, 205, 0.75)' : 'rgba(11, 114, 133, 0.75)',
+          barsB: isDark ? 'rgba(56, 189, 248, 0.75)' : 'rgba(30, 64, 175, 0.75)',
+        };
+      }
+
+      function commonOptions(palette) {
+        return {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: palette.text } }
+          },
+          scales: {
+            x: { ticks: { color: palette.text }, grid: { color: palette.grid } },
+            y: { ticks: { color: palette.text }, grid: { color: palette.grid }, beginAtZero: true }
+          }
+        };
+      }
+
+      const dailyLabels = {{ daily_labels | tojson }};
+      const dailyValues = {{ daily_values | tojson }};
+
+      const articleLabels = {{ article_chart_labels | tojson }};
+      const articleViews = {{ article_chart_values | tojson }};
+
+      const projectLabels = {{ project_chart_labels | tojson }};
+      const projectViews = {{ project_chart_values | tojson }};
+
+      let charts = [];
+
+      function destroyCharts() {
+        charts.forEach(function (c) { c.destroy(); });
+        charts = [];
+      }
+
+      function renderCharts() {
+        destroyCharts();
+        const palette = themePalette();
+
+        const dailyCtx = document.getElementById('dailyActivityChart');
+        if (dailyCtx && dailyLabels.length) {
+          charts.push(new Chart(dailyCtx, {
+            type: 'line',
+            data: { labels: dailyLabels, datasets: [{ label: 'Events/day', data: dailyValues, borderColor: palette.line, backgroundColor: palette.barsA, tension: 0.25, fill: true }] },
+            options: commonOptions(palette)
+          }));
+        }
+
+        const articleCtx = document.getElementById('articleStatsChart');
+        if (articleCtx && articleLabels.length) {
+          charts.push(new Chart(articleCtx, {
+            type: 'bar',
+            data: { labels: articleLabels, datasets: [{ label: 'Views', data: articleViews, backgroundColor: palette.barsA }] },
+            options: commonOptions(palette)
+          }));
+        }
+
+        const projectCtx = document.getElementById('projectStatsChart');
+        if (projectCtx && projectLabels.length) {
+          charts.push(new Chart(projectCtx, {
+            type: 'bar',
+            data: { labels: projectLabels, datasets: [{ label: 'Views', data: projectViews, backgroundColor: palette.barsB }] },
+            options: commonOptions(palette)
+          }));
+        }
+      }
+
+      renderCharts();
+      document.getElementById('themeToggle')?.addEventListener('click', function () {
+        setTimeout(renderCharts, 0);
+      });
+    })();
+  </script>
+{% endblock %}

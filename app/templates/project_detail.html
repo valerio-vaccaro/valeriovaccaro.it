@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}{{ project.title }}{% endblock %}
+{% block content %}
+<section class="hero-card mb-4">
+  <p class="muted-label mb-2">Project</p>
+  <h1 class="display-6 mb-0">{{ project.title }}</h1>
+  {% if project.tags %}
+    <p class="small mb-0 mt-2">
+      {% for tag in split_tags(project.tags) %}
+        <span class="tag-pill {{ tag_color_class(tag) }}">#{{ tag }}</span>
+      {% endfor %}
+    </p>
+  {% endif %}
+</section>
+
+<section class="content-card mb-3">
+  <p class="muted-label mb-2">Repository Stats</p>
+  <div class="row g-2 small">
+    <div class="col-6 col-md-3"><strong>Platform:</strong> {{ project.source_platform or '-' }}</div>
+    <div class="col-6 col-md-3"><strong>Stars:</strong> {{ project.stars_count if project.stars_count is not none else '-' }}</div>
+    <div class="col-6 col-md-3"><strong>Forks:</strong> {{ project.forks_count if project.forks_count is not none else '-' }}</div>
+    <div class="col-6 col-md-3"><strong>Watchers:</strong> {{ project.watchers_count if project.watchers_count is not none else '-' }}</div>
+    <div class="col-6 col-md-3"><strong>Open issues:</strong> {{ project.open_issues_count if project.open_issues_count is not none else '-' }}</div>
+    <div class="col-6 col-md-3"><strong>Default branch:</strong> {{ project.default_branch or '-' }}</div>
+    <div class="col-6 col-md-3"><strong>Repo size (KB):</strong> {{ project.repo_size_kb if project.repo_size_kb is not none else '-' }}</div>
+    <div class="col-6 col-md-3"><strong>Last commit:</strong> {{ project.last_commit_at.strftime('%Y-%m-%d') if project.last_commit_at else '-' }}</div>
+  </div>
+</section>
+
+{% if project.cover_image_filename %}
+<section class="content-card p-0 overflow-hidden mb-3">
+  <img class="detail-cover" src="{{ url_for('static', filename='uploads/' ~ project.cover_image_filename) }}" alt="{{ project.title }} cover image">
+</section>
+{% endif %}
+
+<section class="content-card markdown mb-3">
+  {{ render_markdown(project.markdown_description) }}
+</section>
+{% if project.external_url %}
+  <a class="btn btn-outline-secondary" href="{{ project.external_url }}" target="_blank" rel="noopener">Open External URL</a>
+{% endif %}
+{% endblock %}

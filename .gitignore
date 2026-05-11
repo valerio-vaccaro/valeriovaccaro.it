@@ -216,3 +216,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+app/static/uploads/
+instance
+
+sync_github_projects.py
+sync_gitlab_projects.py

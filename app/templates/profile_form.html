@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Edit profile{% endblock %}
+{% block content %}
+<section class="content-card">
+  <p class="muted-label mb-2">Editing</p>
+  <h1 class="h3 mb-4">Edit profile</h1>
+  <form method="post" class="d-grid gap-3">
+    {{ form.hidden_tag() }}
+    <div>
+      <label class="form-label">{{ form.title.label.text }}</label>
+      {{ form.title(class_='form-control') }}
+      <div class="form-text">This value is used as the website brand in the top navbar.</div>
+    </div>
+    <div>
+      <label class="form-label">{{ form.markdown_bio.label.text }}</label>
+      {{ form.markdown_bio(class_='form-control', rows='16', **{'data-markdown-input': 'profile-preview'}) }}
+    </div>
+    <section class="preview-panel p-3">
+      <p class="muted-label mb-2">Live Markdown Preview</p>
+      <div id="profile-preview" class="markdown"></div>
+    </section>
+    {{ form.submit(class_='btn btn-brand', value='Save profile') }}
+  </form>
+</section>
+{% endblock %}

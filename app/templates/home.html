@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Intro{% endblock %}
+{% block content %}
+<section class="intro-hero mb-4 mb-lg-5">
+  <div class="intro-glow intro-glow-a"></div>
+  <div class="intro-glow intro-glow-b"></div>
+  <div class="row g-4 align-items-center position-relative intro-content">
+    <div class="col-12">
+      <div class="markdown">
+        {{ render_markdown(intro_profile.markdown_bio if intro_profile else 'Write your profile text from the dashboard.') }}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h4 mb-0">Selected Articles</h2>
+    <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('main.all_articles_page') }}">View all</a>
+  </div>
+  <div class="row g-3">
+    {% for article in featured_articles %}
+      <div class="col-12 col-md-6 col-xl-4">
+        <a class="item-link" href="{{ url_for('main.article_detail', username=article.owner.username, slug=article.slug) }}">
+          <div class="content-card h-100 p-0 overflow-hidden">
+            {% if article.cover_image_filename %}
+              <img class="card-cover" src="{{ url_for('static', filename='uploads/' ~ article.cover_image_filename) }}" alt="{{ article.title }} cover">
+            {% endif %}
+            <div class="p-3">
+              <p class="muted-label mb-1">{{ article.owner.username }} - {{ article.published_at.strftime('%Y-%m-%d') }}</p>
+              <h3 class="h5 mb-1">{{ article.title }}</h3>
+              {% if article.tags %}
+                <p class="small mb-0">
+                  {% for tag in split_tags(article.tags) %}
+                    <span class="tag-pill {{ tag_color_class(tag) }}">#{{ tag }}</span>
+                  {% endfor %}
+                </p>
+              {% endif %}
+            </div>
+          </div>
+        </a>
+      </div>
+    {% else %}
+      <div class="col-12"><div class="content-card">No articles yet.</div></div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="mb-3">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h4 mb-0">Selected Projects</h2>
+    <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('main.all_projects_page') }}">View all</a>
+  </div>
+  <div class="row g-3">
+    {% for project in featured_projects %}
+      <div class="col-12 col-md-6 col-xl-4">
+        <a class="item-link" href="{{ url_for('main.project_detail', username=project.owner.username, slug=project.slug) }}">
+          <div class="content-card h-100 p-0 overflow-hidden">
+            {% if project.cover_image_filename %}
+              <img class="card-cover" src="{{ url_for('static', filename='uploads/' ~ project.cover_image_filename) }}" alt="{{ project.title }} cover">
+            {% endif %}
+            <div class="p-3">
+              <p class="muted-label mb-1">{{ project.owner.username }} - {{ project.created_at.strftime('%Y-%m-%d') }}</p>
+              <h3 class="h5 mb-1">{{ project.title }}</h3>
+              <p class="small text-secondary mb-1">
+                {% if project.stars_count is not none %}★ {{ project.stars_count }}{% endif %}
+                {% if project.forks_count is not none %} · Forks {{ project.forks_count }}{% endif %}
+              </p>
+              {% if project.tags %}
+                <p class="small mb-0">
+                  {% for tag in split_tags(project.tags) %}
+                    <span class="tag-pill {{ tag_color_class(tag) }}">#{{ tag }}</span>
+                  {% endfor %}
+                </p>
+              {% endif %}
+            </div>
+          </div>
+        </a>
+      </div>
+    {% else %}
+      <div class="col-12"><div class="content-card">No projects yet.</div></div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

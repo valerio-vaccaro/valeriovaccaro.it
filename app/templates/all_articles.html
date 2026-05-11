@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}All Articles{% endblock %}
+{% block content %}
+<section class="hero-card mb-4">
+  <h1 class="display-6 mb-3">All Articles</h1>
+  <form method="get" class="row g-2">
+    <div class="col-12 col-md-3"><input class="form-control" type="text" name="tag" value="{{ tag }}" placeholder="tag"></div>
+    <div class="col-6 col-md-3">
+      <select class="form-select" name="lang">
+        <option value="">all languages</option>
+        {% for code in language_codes %}
+          <option value="{{ code }}" {% if language == code %}selected{% endif %}>{{ language_flag(code) }} {{ code }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-6 col-md-3"><input class="form-control" type="date" name="from" value="{{ from_date }}"></div>
+    <div class="col-6 col-md-2"><input class="form-control" type="date" name="to" value="{{ to_date }}"></div>
+    <div class="col-6 col-md-1 d-grid"><button class="btn btn-brand" type="submit">Go</button></div>
+  </form>
+</section>
+<div class="row g-3">
+  {% for article in articles %}
+    <div class="col-12 col-md-6">
+      <a class="item-link" href="{{ url_for('main.article_detail', username=article.owner.username, slug=article.slug) }}">
+        <div class="content-card h-100 p-0 overflow-hidden">
+          {% if article.cover_image_filename %}
+            <img class="card-cover" src="{{ url_for('static', filename='uploads/' ~ article.cover_image_filename) }}" alt="{{ article.title }} cover">
+          {% endif %}
+          <div class="p-3">
+            <p class="muted-label mb-1">{{ article.owner.username }} - {{ article.published_at.strftime('%Y-%m-%d') }}</p>
+            <h2 class="h5 mb-1">{{ article.title }}</h2>
+            {% if article.tags %}
+              <p class="small mb-0">
+                {% for tag in split_tags(article.tags) %}
+                  <span class="tag-pill {{ tag_color_class(tag) }}">#{{ tag }}</span>
+                {% endfor %}
+              </p>
+            {% endif %}
+          </div>
+        </div>
+      </a>
+    </div>
+  {% else %}
+    <div class="col-12"><div class="content-card">No matching articles.</div></div>
+  {% endfor %}
+</div>
+{% endblock %}

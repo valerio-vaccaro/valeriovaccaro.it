@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Me{% endblock %}
+{% block content %}
+<section class="hero-card mb-4">
+  <p class="muted-label mb-2">About Me</p>
+  <h1 class="display-6 mb-2">{{ profile.title if profile else 'Me' }}</h1>
+  <p class="text-secondary mb-0">A longer public description page.</p>
+</section>
+
+<section class="content-card markdown">
+  {{ render_markdown(profile.markdown_me if profile and profile.markdown_me else (profile.markdown_bio if profile else 'Write your long-form About Me text.')) }}
+</section>
+
+{% if current_user.is_authenticated %}
+<section class="content-card mt-3">
+  <p class="muted-label mb-2">Edit Me Page</p>
+  <form method="post" class="d-grid gap-3">
+    {{ form.hidden_tag() }}
+    <div>
+      <label class="form-label">{{ form.markdown_me.label.text }}</label>
+      {{ form.markdown_me(class_='form-control', rows='14', **{'data-markdown-input': 'me-preview'}) }}
+    </div>
+    <section class="preview-panel p-3">
+      <p class="muted-label mb-2">Live Markdown Preview</p>
+      <div id="me-preview" class="markdown"></div>
+    </section>
+    {{ form.submit(class_='btn btn-brand') }}
+  </form>
+</section>
+{% endif %}
+{% endblock %}

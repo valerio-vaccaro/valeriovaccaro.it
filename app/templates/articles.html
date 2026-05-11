@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Articles{% endblock %}
+{% block content %}
+<section class="hero-card mb-4">
+  <p class="muted-label mb-2">Writing</p>
+  <h1 class="display-6 mb-0">{{ user.username }} Articles</h1>
+</section>
+
+<div class="row g-3">
+  {% for article in articles %}
+    <div class="col-12 col-md-6">
+      <a class="item-link" href="{{ url_for('main.article_detail', username=user.username, slug=article.slug) }}">
+        <div class="content-card h-100 p-0 overflow-hidden">
+          {% if article.cover_image_filename %}
+            <img class="card-cover" src="{{ url_for('static', filename='uploads/' ~ article.cover_image_filename) }}" alt="{{ article.title }} cover">
+          {% endif %}
+          <div class="p-3">
+            <h2 class="h5 mb-1">{{ article.title }}</h2>
+            <p class="text-secondary mb-0">Open article</p>
+          </div>
+        </div>
+      </a>
+    </div>
+  {% else %}
+    <div class="col-12"><div class="content-card">No articles yet.</div></div>
+  {% endfor %}
+</div>
+{% endblock %}

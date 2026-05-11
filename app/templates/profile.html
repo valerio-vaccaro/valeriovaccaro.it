@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}{{ user.username }}{% endblock %}
+{% block content %}
+<section class="hero-card mb-4">
+  <p class="muted-label mb-2">Profile</p>
+  <h1 class="display-6 mb-2">{{ profile.title if profile else user.username }}</h1>
+  <div class="d-flex gap-2">
+    <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('main.projects_page', username=user.username) }}">Projects</a>
+    <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('main.articles_page', username=user.username) }}">Articles</a>
+  </div>
+</section>
+
+<section class="content-card markdown">
+  {{ render_markdown(profile.markdown_bio if profile else '') }}
+</section>
+{% endblock %}

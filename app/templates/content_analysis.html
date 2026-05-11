@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Content Analysis{% endblock %}
+{% block content %}
+<section class="hero-card mb-4">
+  <p class="muted-label mb-2">Asset Intelligence</p>
+  <h1 class="display-6 mb-2">Content Analysis</h1>
+  <p class="text-secondary mb-0">Analyze uploaded files/images, delete assets, and create short URLs.</p>
+</section>
+
+<section class="content-card">
+  <h2 class="h5 mb-3">Loaded content</h2>
+  <div class="row g-3">
+    {% for asset in assets %}
+      <div class="col-12 col-lg-6">
+        <article class="border rounded p-3 h-100">
+          <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
+            <div>
+              <h3 class="h6 mb-1">{{ asset.original_name }}</h3>
+              <p class="small text-secondary mb-0">
+                {{ asset.mime_type or 'unknown mime' }} · {{ (asset.size_bytes / 1024)|round(1) }} KB · {{ asset.created_at.strftime('%Y-%m-%d %H:%M') }}
+              </p>
+            </div>
+            <form method="post" action="{{ url_for('manage.delete_asset', asset_id=asset.id) }}">
+              <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+            </form>
+          </div>
+
+          {% if asset.mime_type and asset.mime_type.startswith('image/') %}
+            <div class="mb-2">
+              <img class="img-fluid rounded border" src="{{ url_for('static', filename='uploads/' ~ asset.filename) }}" alt="{{ asset.original_name }} preview">
+            </div>
+          {% endif %}
+
+          <p class="small mb-2">
+            URL: <a href="{{ url_for('static', filename='uploads/' ~ asset.filename) }}" target="_blank">{{ base }}{{ url_for('static', filename='uploads/' ~ asset.filename) }}</a>
+          </p>
+
+          <form method="post" action="{{ url_for('manage.create_asset_short_url', asset_id=asset.id) }}" class="row g-2 align-items-end mb-2">
+            <div class="col-8">
+              <label class="form-label small mb-1">Custom short code (optional)</label>
+              <input type="text" class="form-control form-control-sm" name="code" placeholder="my-file">
+            </div>
+            <div class="col-4 d-grid">
+              <button type="submit" class="btn btn-sm btn-brand">Create short URL</button>
+            </div>
+          </form>
+
+          <div>
+            <p class="small fw-semibold mb-1">Short URLs</p>
+            <ul class="list-group list-group-flush">
+              {% for short in short_by_asset.get(asset.id, []) %}
+                <li class="list-group-item px-0 py-1 d-flex justify-content-between align-items-center gap-2">
+                  <a href="{{ url_for('main.short_asset_redirect', code=short.code) }}" target="_blank">{{ base }}{{ url_for('main.short_asset_redirect', code=short.code) }}</a>
+                  <form method="post" action="{{ url_for('manage.delete_asset_short_url', short_id=short.id) }}">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                  </form>
+                </li>
+              {% else %}
+                <li class="list-group-item px-0 py-1 text-secondary">No short URL yet.</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </article>
+      </div>
+    {% else %}
+      <div class="col-12"><div class="content-card">No uploaded files.</div></div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<section class="hero-card mb-4">
+  <p class="muted-label mb-2">Control Panel</p>
+  <h1 class="display-6 mb-3">Dashboard</h1>
+  <div class="d-flex gap-2 flex-wrap">
+    <a class="btn btn-brand" href="{{ url_for('manage.edit_profile') }}">Edit profile</a>
+    <a class="btn btn-outline-secondary" href="{{ url_for('manage.new_project') }}">New project</a>
+    <a class="btn btn-outline-secondary" href="{{ url_for('manage.new_article') }}">New article</a>
+    <a class="btn btn-outline-secondary" href="{{ url_for('manage.upload_asset') }}">Assets</a>
+    <a class="btn btn-outline-secondary" href="{{ url_for('manage.statistics') }}">Statistics</a>
+  </div>
+</section>
+
+<div class="row g-3">
+  <div class="col-12 col-lg-4">
+    <section class="content-card h-100">
+      <p class="muted-label mb-2">Profile</p>
+      <h2 class="h5 mb-0">{{ profile.title if profile else 'No profile yet' }}</h2>
+    </section>
+  </div>
+
+  <div class="col-12 col-lg-4">
+    <section class="content-card h-100">
+      <p class="muted-label mb-2">Projects</p>
+      <ul class="list-group list-group-flush">
+        {% for project in projects %}
+          <li class="list-group-item px-0 d-flex justify-content-between align-items-center gap-2">
+            <span class="d-flex align-items-center gap-2">
+              {% if project.cover_image_filename %}
+                <img class="thumb-mini" src="{{ url_for('static', filename='uploads/' ~ project.cover_image_filename) }}" alt="thumb">
+              {% endif %}
+              <span>{{ project.title }}</span>
+              {% if not project.is_visible %}
+                <span class="badge text-bg-secondary">Hidden</span>
+              {% endif %}
+            </span>
+            <span>
+              <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('manage.edit_project', project_id=project.id) }}">Edit</a>
+              <form method="post" action="{{ url_for('manage.toggle_project_visibility', project_id=project.id) }}" class="d-inline">
+                <button class="btn btn-sm btn-outline-warning" type="submit">{{ 'Hide' if project.is_visible else 'Unhide' }}</button>
+              </form>
+              <form method="post" action="{{ url_for('manage.delete_project', project_id=project.id) }}" class="d-inline">
+                <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+              </form>
+            </span>
+          </li>
+        {% else %}
+          <li class="list-group-item px-0">No projects.</li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+
+  <div class="col-12 col-lg-4">
+    <section class="content-card h-100">
+      <p class="muted-label mb-2">Articles</p>
+      <ul class="list-group list-group-flush">
+        {% for article in articles %}
+          <li class="list-group-item px-0 d-flex justify-content-between align-items-center gap-2">
+            <span class="d-flex align-items-center gap-2">
+              {% if article.cover_image_filename %}
+                <img class="thumb-mini" src="{{ url_for('static', filename='uploads/' ~ article.cover_image_filename) }}" alt="thumb">
+              {% endif %}
+              <span>{{ article.title }}</span>
+              {% if not article.is_visible %}
+                <span class="badge text-bg-secondary">Hidden</span>
+              {% endif %}
+            </span>
+            <span>
+              <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('manage.edit_article', article_id=article.id) }}">Edit</a>
+              <form method="post" action="{{ url_for('manage.toggle_article_visibility', article_id=article.id) }}" class="d-inline">
+                <button class="btn btn-sm btn-outline-warning" type="submit">{{ 'Hide' if article.is_visible else 'Unhide' }}</button>
+              </form>
+              <form method="post" action="{{ url_for('manage.delete_article', article_id=article.id) }}" class="d-inline">
+                <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+              </form>
+            </span>
+          </li>
+        {% else %}
+          <li class="list-group-item px-0">No articles.</li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+</div>
+
+<section class="content-card mt-3">
+  <p class="muted-label mb-2">Latest Assets</p>
+  <ul class="list-group list-group-flush">
+    {% for asset in assets[:5] %}
+      <li class="list-group-item px-0">
+        <strong>{{ asset.original_name }}</strong><br>
+        <code>![alt]({{ url_for('static', filename='uploads/' ~ asset.filename) }})</code><br>
+        <code>[file]({{ url_for('static', filename='uploads/' ~ asset.filename) }})</code>
+      </li>
+    {% else %}
+      <li class="list-group-item px-0">No assets yet.</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}

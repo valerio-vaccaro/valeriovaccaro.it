@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-8 col-lg-5">
+    <section class="content-card">
+      <p class="muted-label mb-2">Access</p>
+      <h1 class="h3 mb-4">Login</h1>
+      <form method="post" class="d-grid gap-3">
+        {{ form.hidden_tag() }}
+        <div>
+          <label class="form-label">{{ form.username.label.text }}</label>
+          {{ form.username(class_='form-control', placeholder='your_username') }}
+        </div>
+        <div>
+          <label class="form-label">{{ form.password.label.text }}</label>
+          {{ form.password(class_='form-control', placeholder='Password') }}
+        </div>
+        {{ form.submit(class_='btn btn-brand', value='Login') }}
+      </form>
+    </section>
+  </div>
+</div>
+{% endblock %}

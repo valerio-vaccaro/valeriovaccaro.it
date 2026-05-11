@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}{{ translation.title if translation else article.title }}{% endblock %}
+{% block content %}
+<section class="hero-card mb-4">
+  <p class="muted-label mb-2">Article</p>
+  <h1 class="display-6 mb-2">{{ translation.title if translation else article.title }}</h1>
+  <p class="text-secondary mb-2">{{ article.published_at.strftime('%Y-%m-%d') }} by {{ user.username }}</p>
+  {% if article.tags %}
+    <p class="small mb-2">
+      {% for tag in split_tags(article.tags) %}
+        <span class="tag-pill {{ tag_color_class(tag) }}">#{{ tag }}</span>
+      {% endfor %}
+    </p>
+  {% endif %}
+  {% if available_translations %}
+    <div class="d-flex gap-2 flex-wrap align-items-center">
+      <span class="text-secondary small">Read in:</span>
+      <a class="btn btn-sm {% if not requested_lang or not translation %}btn-brand{% else %}btn-outline-secondary{% endif %}" href="{{ url_for('main.article_detail', username=user.username, slug=article.slug) }}">{{ language_flag(article_language_code) }} {{ article_language_code }}</a>
+      {% for t in available_translations %}
+        <a class="btn btn-sm {% if requested_lang == t.language_code %}btn-brand{% else %}btn-outline-secondary{% endif %}" href="{{ url_for('main.article_detail', username=user.username, slug=article.slug, lang=t.language_code) }}">{{ language_flag(t.language_code) }} {{ t.language_code }}</a>
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
+
+{% if article.cover_image_filename %}
+<section class="content-card p-0 overflow-hidden mb-3">
+  <img class="detail-cover" src="{{ url_for('static', filename='uploads/' ~ article.cover_image_filename) }}" alt="{{ article.title }} cover image">
+</section>
+{% endif %}
+
+<section class="content-card markdown mb-3">
+  {{ render_markdown(translation.markdown_body if translation else article.markdown_body) }}
+</section>
+{% if article.external_url %}
+  <a class="btn btn-outline-secondary" href="{{ article.external_url }}" target="_blank" rel="noopener">Open External URL</a>
+{% endif %}
+{% endblock %}

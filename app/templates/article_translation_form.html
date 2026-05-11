@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Edit translation' if editing else 'New translation' }}{% endblock %}
+{% block content %}
+<section class="content-card">
+  <p class="muted-label mb-2">Translations</p>
+  <h1 class="h3 mb-2">{{ 'Edit translation' if editing else 'New translation' }}</h1>
+  <p class="text-secondary">Article: <strong>{{ article.title }}</strong></p>
+  <form method="post" class="d-grid gap-3">
+    {{ form.hidden_tag() }}
+    <div>
+      <label class="form-label">{{ form.language_code.label.text }}</label>
+      {{ form.language_code(class_='form-select') }}
+    </div>
+    <div>
+      <label class="form-label">{{ form.title.label.text }}</label>
+      {{ form.title(class_='form-control') }}
+    </div>
+    <div>
+      <label class="form-label">{{ form.markdown_body.label.text }}</label>
+      {{ form.markdown_body(class_='form-control', rows='18', **{'data-markdown-input': 'translation-preview'}) }}
+    </div>
+    <section class="preview-panel p-3">
+      <p class="muted-label mb-2">Live Markdown Preview</p>
+      <div id="translation-preview" class="markdown"></div>
+    </section>
+    {{ form.submit(class_='btn btn-brand', value='Save translation') }}
+  </form>
+</section>
+{% endblock %}

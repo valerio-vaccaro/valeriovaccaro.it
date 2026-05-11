@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Projects{% endblock %}
+{% block content %}
+<section class="hero-card mb-4">
+  <p class="muted-label mb-2">Portfolio</p>
+  <h1 class="display-6 mb-0">{{ user.username }} Projects</h1>
+</section>
+
+<div class="row g-3">
+  {% for project in projects %}
+    <div class="col-12 col-md-6">
+      <a class="item-link" href="{{ url_for('main.project_detail', username=user.username, slug=project.slug) }}">
+        <div class="content-card h-100 p-0 overflow-hidden">
+          {% if project.cover_image_filename %}
+            <img class="card-cover" src="{{ url_for('static', filename='uploads/' ~ project.cover_image_filename) }}" alt="{{ project.title }} cover">
+          {% endif %}
+          <div class="p-3">
+            <h2 class="h5 mb-1">{{ project.title }}</h2>
+            <p class="text-secondary mb-0">
+              {% if project.stars_count is not none %}★ {{ project.stars_count }}{% endif %}
+              {% if project.forks_count is not none %} · Forks {{ project.forks_count }}{% endif %}
+            </p>
+          </div>
+        </div>
+      </a>
+    </div>
+  {% else %}
+    <div class="col-12"><div class="content-card">No projects yet.</div></div>
+  {% endfor %}
+</div>
+{% endblock %}

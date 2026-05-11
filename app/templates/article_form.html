@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Edit article' if editing else 'New article' }}{% endblock %}
+{% block content %}
+<section class="content-card">
+  <p class="muted-label mb-2">Articles</p>
+  <h1 class="h3 mb-4">{{ 'Edit article' if editing else 'New article' }}</h1>
+  <form method="post" enctype="multipart/form-data" class="d-grid gap-3">
+    {{ form.hidden_tag() }}
+    <div>
+      <label class="form-label">{{ form.title.label.text }}</label>
+      {{ form.title(class_='form-control') }}
+    </div>
+    <div>
+      <label class="form-label">{{ form.slug.label.text }}</label>
+      {{ form.slug(class_='form-control') }}
+    </div>
+    <div>
+      <label class="form-label">{{ form.published_at.label.text }}</label>
+      {{ form.published_at(class_='form-control') }}
+    </div>
+    <div>
+      <label class="form-label">{{ form.language_code.label.text }}</label>
+      {{ form.language_code(class_='form-select') }}
+    </div>
+    <div>
+      <label class="form-label">{{ form.tags.label.text }}</label>
+      {{ form.tags(class_='form-control', placeholder='flask, sqlite, personal', **{'data-tag-editor': 'true'}) }}
+      <div class="form-text">Press Enter or comma to add a tag.</div>
+    </div>
+    <div>
+      <label class="form-label">{{ form.external_url.label.text }}</label>
+      {{ form.external_url(class_='form-control', placeholder='https://example.com') }}
+    </div>
+    <div>
+      <label class="form-label">{{ form.cover_image.label.text }}</label>
+      {{ form.cover_image(class_='form-control') }}
+    </div>
+    <div class="form-check">
+      {{ form.is_visible(class_='form-check-input') }}
+      <label class="form-check-label" for="{{ form.is_visible.id }}">{{ form.is_visible.label.text }}</label>
+    </div>
+    <div class="form-check">
+      {{ form.show_on_homepage(class_='form-check-input') }}
+      <label class="form-check-label" for="{{ form.show_on_homepage.id }}">{{ form.show_on_homepage.label.text }}</label>
+    </div>
+    <div>
+      <div class="d-flex justify-content-between align-items-center mb-1">
+        <label class="form-label mb-0">{{ form.markdown_body.label.text }}</label>
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-copy-markdown-target="{{ form.markdown_body.id }}">Copy full markdown</button>
+      </div>
+      {{ form.markdown_body(class_='form-control', rows='20', **{'data-markdown-input': 'article-preview'}) }}
+    </div>
+    <section class="preview-panel p-3">
+      <p class="muted-label mb-2">Live Markdown Preview</p>
+      <div id="article-preview" class="markdown"></div>
+    </section>
+    {{ form.submit(class_='btn btn-brand', value='Save article') }}
+  </form>
+</section>
+
+<section class="content-card mt-3">
+  <p class="muted-label mb-2">Editor Assets</p>
+  <h2 class="h5 mb-3">Upload and insert images/files</h2>
+  <form method="post" enctype="multipart/form-data" class="row gy-2 gx-2 align-items-end mb-3">
+    {{ form.csrf_token }}
+    <input type="hidden" name="action" value="upload_assets">
+    <div class="col-12 col-md-8">
+      <label class="form-label">Upload files for this article</label>
+      <input type="file" class="form-control" name="inline_assets" multiple>
+    </div>
+    <div class="col-12 col-md-4">
+      <button type="submit" class="btn btn-outline-secondary w-100">Upload to assets</button>
+    </div>
+  </form>
+
+  <p class="small text-secondary mb-2">Click to insert markdown at cursor in the article field.</p>
+  <div class="row g-2">
+    {% for asset in assets %}
+      {% set asset_url = url_for('static', filename='uploads/' ~ asset.filename) %}
+      {% set image_snippet = '![%s](%s)'|format(asset.original_name, asset_url) %}
+      {% set file_snippet = '[%s](%s)'|format(asset.original_name, asset_url) %}
+      <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+        <div class="border rounded p-2 h-100 d-flex flex-column gap-2">
+          {% if asset.mime_type and asset.mime_type.startswith('image/') %}
+            <img
+              src="{{ asset_url }}"
+              alt="{{ asset.original_name }} preview"
+              class="rounded border"
+              style="width:100%;height:88px;object-fit:cover;"
+            >
+          {% endif %}
+          <span class="small text-truncate" title="{{ asset.original_name }}">{{ asset.original_name }}</span>
+          <span class="d-grid gap-1">
+            {% if asset.mime_type and asset.mime_type.startswith('image/') %}
+              <button type="button" class="btn btn-sm btn-outline-secondary" data-insert-markdown="{{ image_snippet }}">Insert image</button>
+            {% endif %}
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-insert-markdown="{{ file_snippet }}">Insert file</button>
+          </span>
+        </div>
+      </div>
+    {% else %}
+      <div class="col-12"><p class="text-secondary mb-0">No uploaded assets yet.</p></div>
+    {% endfor %}
+  </div>
+</section>
+
+{% if editing and article %}
+<section class="content-card mt-3">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <p class="muted-label mb-1">Translations</p>
+      <h2 class="h5 mb-0">Localized versions</h2>
+    </div>
+    <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('manage.new_article_translation', article_id=article.id) }}">Add translation</a>
+  </div>
+  <ul class="list-group list-group-flush">
+    {% for t in translations %}
+      <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+        <span><strong>{{ language_flag(t.language_code) }} {{ t.language_code }}</strong> - {{ t.title }}</span>
+        <span>
+          <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('manage.edit_article_translation', article_id=article.id, translation_id=t.id) }}">Edit</a>
+          <form method="post" action="{{ url_for('manage.delete_article_translation', article_id=article.id, translation_id=t.id) }}" class="d-inline">
+            <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+          </form>
+        </span>
+      </li>
+    {% else %}
+      <li class="list-group-item px-0">No translations yet.</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% endblock %}

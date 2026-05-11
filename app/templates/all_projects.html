@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}All Projects{% endblock %}
+{% block content %}
+<section class="hero-card mb-4">
+  <h1 class="display-6 mb-3">All Projects</h1>
+  <form method="get" class="row g-2">
+    <div class="col-12 col-md-3"><input class="form-control" type="text" name="tag" value="{{ tag }}" placeholder="tag"></div>
+    <div class="col-6 col-md-3"><input class="form-control" type="date" name="from" value="{{ from_date }}"></div>
+    <div class="col-6 col-md-3"><input class="form-control" type="date" name="to" value="{{ to_date }}"></div>
+    <div class="col-12 col-md-3 d-grid"><button class="btn btn-brand" type="submit">Filter</button></div>
+  </form>
+</section>
+<div class="row g-3">
+  {% for project in projects %}
+    <div class="col-12 col-md-6">
+      <a class="item-link" href="{{ url_for('main.project_detail', username=project.owner.username, slug=project.slug) }}">
+        <div class="content-card h-100">
+          <p class="muted-label mb-1">{{ project.owner.username }} - {{ project.created_at.strftime('%Y-%m-%d') }}</p>
+          <h2 class="h5 mb-1">{{ project.title }}</h2>
+          <p class="small text-secondary mb-1">
+            {% if project.stars_count is not none %}★ {{ project.stars_count }}{% endif %}
+            {% if project.forks_count is not none %} · Forks {{ project.forks_count }}{% endif %}
+          </p>
+          {% if project.tags %}
+            <p class="small mb-0">
+              {% for tag in split_tags(project.tags) %}
+                <span class="tag-pill {{ tag_color_class(tag) }}">#{{ tag }}</span>
+              {% endfor %}
+            </p>
+          {% endif %}
+        </div>
+      </a>
+    </div>
+  {% else %}
+    <div class="col-12"><div class="content-card">No matching projects.</div></div>
+  {% endfor %}
+</div>
+{% endblock %}

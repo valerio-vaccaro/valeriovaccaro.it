@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Edit project' if editing else 'New project' }}{% endblock %}
+{% block content %}
+<section class="content-card">
+  <p class="muted-label mb-2">Projects</p>
+  <h1 class="h3 mb-4">{{ 'Edit project' if editing else 'New project' }}</h1>
+  <form method="post" enctype="multipart/form-data" class="d-grid gap-3">
+    {{ form.hidden_tag() }}
+    <div>
+      <label class="form-label">{{ form.title.label.text }}</label>
+      {{ form.title(class_='form-control') }}
+    </div>
+    <div>
+      <label class="form-label">{{ form.slug.label.text }}</label>
+      {{ form.slug(class_='form-control') }}
+    </div>
+    <div>
+      <label class="form-label">{{ form.external_url.label.text }}</label>
+      {{ form.external_url(class_='form-control', placeholder='https://example.com') }}
+    </div>
+    <div>
+      <label class="form-label">{{ form.tags.label.text }}</label>
+      {{ form.tags(class_='form-control', placeholder='web, design, api', **{'data-tag-editor': 'true'}) }}
+      <div class="form-text">Press Enter or comma to add a tag.</div>
+    </div>
+    <div>
+      <label class="form-label">{{ form.cover_image.label.text }}</label>
+      {{ form.cover_image(class_='form-control') }}
+    </div>
+    <div class="form-check">
+      {{ form.is_visible(class_='form-check-input') }}
+      <label class="form-check-label" for="{{ form.is_visible.id }}">{{ form.is_visible.label.text }}</label>
+    </div>
+    <div class="form-check">
+      {{ form.show_on_homepage(class_='form-check-input') }}
+      <label class="form-check-label" for="{{ form.show_on_homepage.id }}">{{ form.show_on_homepage.label.text }}</label>
+    </div>
+    <div>
+      <label class="form-label">{{ form.markdown_description.label.text }}</label>
+      {{ form.markdown_description(class_='form-control', rows='16', **{'data-markdown-input': 'project-preview'}) }}
+    </div>
+    <section class="preview-panel p-3">
+      <p class="muted-label mb-2">Live Markdown Preview</p>
+      <div id="project-preview" class="markdown"></div>
+    </section>
+    {{ form.submit(class_='btn btn-brand', value='Save project') }}
+  </form>
+</section>
+{% endblock %}
